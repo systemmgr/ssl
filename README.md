@@ -15,12 +15,12 @@ pacman -S openssl
   
 Automatic install/update:
 ```
-sudo bash -c "$(curl -LSs https://github.com/casjay-dotfiles/ssl/raw/master/install.sh)"
+sudo bash -c "$(curl -LSs https://github.com/systemmgr/ssl/raw/master/install.sh)"
 ```
 Manual install:
 ```
-sudo git clone https://github.com/casjay-dotfiles/ssl "/usr/local/etc/ssl"
-ln -sf /usr/local/etc/ssl /stc/ssl/CA/CasjaysDev
+sudo git clone https://github.com/systemmgr/ssl "/usr/local/etc/ssl"
+sudo ln -sf /usr/local/etc/ssl /stc/ssl/CA/CasjaysDev
 ```
   
   
