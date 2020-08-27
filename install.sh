@@ -49,7 +49,7 @@ PLUGNAME=""
 
 # Version
 
-APPVERSION="$(curl -LSs ${DOTFILESREPO:-https://github.com/systemmgr}/$APPNAME/raw/master/version.txt)"
+APPVERSION="$(curl -LSs ${SYSTEMMGRREPO:-https://github.com/systemmgr}/$APPNAME/raw/master/version.txt)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
