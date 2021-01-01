@@ -101,7 +101,7 @@ failexitcode
 # run post install scripts
 
 run_postinst() {
-  systemmgr_run_post
+  systemmgr_run_postinst
   mkd /etc/ssl/CA
   rm_rf /etc/ssl/CA/CasjaysDev
   ln_sf $APPDIR /etc/ssl/CA/CasjaysDev
