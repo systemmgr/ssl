@@ -46,9 +46,10 @@ scripts_check
 # Defaults
 APPNAME="${APPNAME:-ssl}"
 APPDIR="/usr/local/etc/$APPNAME"
+INSTDIR="${INSTDIR}"
 REPO="${SYSTEMMGRREPO:-https://github.com/systemmgr}/${APPNAME}"
 REPORAW="${REPORAW:-$REPO/raw}"
-APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
+APPVERSION="$(__appversion $REPORAW/master/version.txt)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -61,6 +62,13 @@ systemmgr_install
 # Script options IE: --help
 
 show_optvars "$@"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Requires root - no point in continuing
+
+sudoreq # sudo required
+#sudorun  # sudo optional
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -82,15 +90,15 @@ ensure_perms
 
 # Main progam
 
-if [ -d "$APPDIR/.git" ]; then
+if [ -d "$INSTDIR/.git" ]; then
   execute \
-  "git_update $APPDIR" \
-  "Updating $APPNAME configurations"
+    "git_update $INSTDIR" \
+    "Updating $APPNAME configurations"
 else
   execute \
-  "backupapp && \
-        git_clone -q $REPO/$APPNAME $APPDIR" \
-  "Installing $APPNAME configurations"
+    "backupapp && \
+        git_clone -q $REPO/$APPNAME $INSTDIR" \
+    "Installing $APPNAME configurations"
 fi
 
 # exit on fail
@@ -104,25 +112,25 @@ run_postinst() {
   systemmgr_run_postinst
   mkd /etc/ssl/CA
   rm_rf /etc/ssl/CA/CasjaysDev
-  ln_sf $APPDIR /etc/ssl/CA/CasjaysDev
+  cp_rf "$APPDIR/." /etc/ssl/CA/CasjaysDev
   if [ ! -e /etc/ssl/dhparam ]; then
-    ln_sf $APPDIR/dhparam /etc/ssl/dhparam
+    cp_rf "$APPDIR/dhparam" /etc/ssl/dhparam
   fi
   if [ -d /usr/local/share/ca-certificates ]; then
-    ln_sf $APPDIR/certs/ca.crt /usr/local/share/ca-certificates/CasjaysDev.crt
+    cp_rf "$APPDIR/certs/ca.crt" /usr/local/share/ca-certificates/CasjaysDev.crt
   elif [ -d /etc/pki/ca-trust/source/anchors ]; then
-    ln_sf $APPDIR/certs/ca.crt /etc/pki/ca-trust/source/anchors/CasjaysDev.crt
+    cp_rf "$APPDIR/certs/ca.crt" /etc/pki/ca-trust/source/anchors/CasjaysDev.crt
   fi
-  if [ -f $(command -v update-ca-trust 2>/dev/null) ]; then
+  if [ -f "$(command -v update-ca-trust 2>/dev/null)" ]; then
     devnull update-ca-trust extract && devnull update-ca-trust || true
-  elif [ -f $(command -v update-ca-certificates 2>/dev/null) ]; then
+  elif [ -f "$(command -v update-ca-certificates 2>/dev/null)" ]; then
     devnull update-ca-certificates --fresh && devnull update-ca-certificates || true
   fi
 }
 
 execute \
-"run_postinst" \
-"Running post install scripts"
+  "run_postinst" \
+  "Running post install scripts"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
