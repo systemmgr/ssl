@@ -132,6 +132,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -# run post install scripts
 run_postinst() {
   systemmgr_run_post
+  local lecert_dir="$(ls -d /etc/letsencrypt/live/* 2>/dev/null| grep -wv 'domain' | head -n1 | grep '^')"
   mkd /etc/ssl/CA
   rm_rf /etc/ssl/CA/CasjaysDev
   cp_rf "$APPDIR/." /etc/ssl/CA/CasjaysDev
@@ -147,6 +148,9 @@ run_postinst() {
     devnull update-ca-trust extract && devnull update-ca-trust || true
   elif [ -f "$(command -v update-ca-certificates 2>/dev/null)" ]; then
     devnull update-ca-certificates --fresh && devnull update-ca-certificates || true
+  fi
+  if [[ -d "$lecert_dir" ]] && [[ ! -e "/etc/letsencrypt/live/domain" ]]; then
+    ln -sf "$lecert_dir" "/etc/letsencrypt/live/domain" &>/dev/null
   fi
 }
 #
