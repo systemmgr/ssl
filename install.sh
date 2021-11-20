@@ -133,21 +133,21 @@ fi
 run_postinst() {
   local lecert_dir
   systemmgr_run_post
-  lecert_dir="$(ls -d /etc/letsencrypt/live/* 2>/dev/null | grep -wv 'domain' | head -n1 | grep '^')"
+  lecert_dir="$(find /etc/letsencrypt/live/* -maxdepth 1 -type d | grep -swv 'domain' | head -n1 | grep '^')"
   mkd /etc/ssl/CA
-  rm_rf /etc/ssl/CA/CasjaysDev
+  [ -f "/etc/ssl/CA/CasjaysDev/.installed" ] || rm_rf /etc/ssl/CA/CasjaysDev
   cp_rf "$APPDIR/." "/etc/ssl/CA/CasjaysDev"
-  if [ ! -e "/etc/ssl/dhparam" ]; then
-    cp_rf "$APPDIR/dhparam" "/etc/ssl/dhparam"
-  elif [ -e "/etc/ssl/CA/dh" ]; then
+  if [ -d "/etc/ssl/CA/dh" ]; then
     cp_rf "$APPDIR/dhparam/." "/etc/ssl/CA/dh/"
+  elif [ ! -e "/etc/ssl/dhparam" ]; then
+    cp_rf "$APPDIR/dhparam" "/etc/ssl/dhparam"
   fi
-  if [ -d /usr/local/share/ca-certificates ]; then
-    cp_rf "$APPDIR/certs/ca.crt" /usr/local/share/ca-certificates/CasjaysDev.crt
-  elif [ -d /etc/pki/ca-trust/source/anchors ]; then
-    cp_rf "$APPDIR/certs/ca.crt" /etc/pki/ca-trust/source/anchors/CasjaysDev.crt
+  if [ -d "/usr/local/share/ca-certificates" ]; then
+    cp_rf "$APPDIR/certs/ca.crt" "/usr/local/share/ca-certificates/CasjaysDev.crt"
+  elif [ -d "/etc/pki/ca-trust/source/anchors" ]; then
+    cp_rf "$APPDIR/certs/ca.crt" "/etc/pki/ca-trust/source/anchors/CasjaysDev.crt"
   elif [ -d "/etc/ca-certificates/trust-source/anchors" ]; then
-    cp_rf "$APPDIR/certs/ca.crt" /etc/ca-certificates/trust-source/anchors/CasjaysDev.crt
+    cp_rf "$APPDIR/certs/ca.crt" "/etc/ca-certificates/trust-source/anchors/CasjaysDev.crt"
   fi
   if [ -f "$(command -v update-ca-trust 2>/dev/null)" ]; then
     devnull update-ca-trust extract && devnull update-ca-trust || true
