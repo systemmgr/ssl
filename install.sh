@@ -131,11 +131,11 @@ if am_i_online; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -# run post install scripts
 run_postinst() {
-  local lecert_dir
   systemmgr_run_post
+  local lecert_dir
   lecert_dir="$(find /etc/letsencrypt/live/* -maxdepth 1 -type d | grep -swv 'domain' | head -n1 | grep '^')"
-  mkd /etc/ssl/CA
-  [ -f "/etc/ssl/CA/CasjaysDev/.installed" ] || rm_rf /etc/ssl/CA/CasjaysDev
+  [ -d "/etc/ssl/CA" ] || mkd /etc/ssl/CA
+  [ -f "/etc/ssl/CA/CasjaysDev/.installed" ] || rm_rf "/etc/ssl/CA/CasjaysDev"
   cp_rf "$APPDIR/." "/etc/ssl/CA/CasjaysDev"
   if [ -d "/etc/ssl/CA/dh" ]; then
     cp_rf "$APPDIR/dhparam/." "/etc/ssl/CA/dh/"
