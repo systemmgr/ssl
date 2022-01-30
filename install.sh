@@ -154,7 +154,11 @@ run_postinst() {
   elif [ -f "$(command -v update-ca-certificates 2>/dev/null)" ]; then
     devnull update-ca-certificates --fresh && devnull update-ca-certificates || true
   fi
-  if [[ -d "$lecert_dir" ]] && [[ ! -e "/etc/letsencrypt/live/domain" ]]; then
+  if [[ $(find -L "/etc/letsencrypt/live/domain" -type f 2>/dev/null | wc -l) -eq 0 ]]; then
+    ln -sf /etc/ssl/CA/CasjaysDev/certs/ca.crt /etc/letsencrypt/live/domain/cert.pem
+    ln -sf /etc/ssl/CA/CasjaysDev/certs/localhost.crt /etc/letsencrypt/live/domain/fullchain.pem
+    ln -sf /etc/ssl/CA/CasjaysDev/private/localhost.key /etc/letsencrypt/live/domain/privkey.pem
+  elif [[ -d "$lecert_dir" ]] && [[ $(find -L "/etc/letsencrypt/live" -name 'fullchain.pem' -type f 2>/dev/null | grep -v 'domain' | wc -l) -eq 0 ]]; then
     ln -sf "$lecert_dir" "/etc/letsencrypt/live/domain" &>/dev/null
   fi
 }
